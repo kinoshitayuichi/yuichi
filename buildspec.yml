@@ -16,9 +16,6 @@ phases:
    - echo Build started on `date`
    - echo installing composer..
    - composer install
-   - echo creating .env file..
-   - echo generating app key
-   - php artisan key:generate
    - echo Building the Docker image...
    - docker build -t laravel-docker .
    - docker tag laravel-docker:latest $REPOSITORY_URI:$CODEBUILD_WEBHOOK_BASE_REF
