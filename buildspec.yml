@@ -1,0 +1,31 @@
+version: 0.2
+  
+phases:
+ install:
+   runtime-versions:
+     php: 7.3
+ pre_build: # commands to be run before build
+   commands:
+   - echo Logging in to Amazon ECR....
+   - aws --version
+   # login to Elastic container registry
+   - $(aws ecr get-login --no-include-email --region ${AWS_DEFAULT_REGION})
+   - REPOSITORY_URI=056305438366.dkr.ecr.ap-northeast-1.amazonaws.com/pipeline-test
+ build:
+   commands:
+   - echo Build started on `date`
+   - echo installing composer..
+   - composer install
+   - echo Building the Docker image...
+   - docker build -t laravel-docker .
+   - docker tag laravel-docker:latest $REPOSITORY_URI:$CODEBUILD_WEBHOOK_BASE_REF
+ post_build:
+   commands:
+     - echo Build completed on `date`
+     - echo Pushing the Docker image...
+     - docker image ls -a
+     - docker push $REPOSITORY_URI:$CODEBUILD_WEBHOOK_BASE_REF
+     - echo Writing image definitions file...
+     - printf '[{"name":"laravel-docker-container","imageUri":"%s"}]' $REPOSITORY_URI:$CODEBUILD_WEBHOOK_BASE_REF > imagedefinitions.json
+artifacts:
+  files: imagedefinitions.json
