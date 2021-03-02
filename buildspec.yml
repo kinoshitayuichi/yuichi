@@ -6,6 +6,8 @@ phases:
      php: 7.3
  pre_build: # commands to be run before build
    commands:
+   - echo $CODEBUILD_WEBHOOK_HEAD_REF
+   - echo $CODEBUILD_WEBHOOK_TRIGGER
    - echo Logging in to Amazon ECR....
    - aws --version
    # login to Elastic container registry
