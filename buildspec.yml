@@ -8,6 +8,7 @@ phases:
    commands:
    - echo $CODEBUILD_WEBHOOK_HEAD_REF
    - echo $CODEBUILD_WEBHOOK_TRIGGER
+   - echo ${CODEBUILD_WEBHOOK_TRIGGER#branch/}
    - echo Logging in to Amazon ECR....
    - aws --version
    # login to Elastic container registry
@@ -20,7 +21,7 @@ phases:
    - composer install
    - echo Building the Docker image...
    - docker build -t laravel-docker .
-   - docker tag laravel-docker:latest $REPOSITORY_URI:$CODEBUILD_SOURCE_VERSION
+   - docker tag laravel-docker:latest $REPOSITORY_URI:${CODEBUILD_WEBHOOK_TRIGGER#branch/}
  post_build:
    commands:
      - echo Build completed on `date`
@@ -28,6 +29,6 @@ phases:
      - docker image ls -a
      - docker push $REPOSITORY_URI:$CODEBUILD_SOURCE_VERSION
      - echo Writing image definitions file...
-     - printf '[{"name":"laravel-docker-container","imageUri":"%s"}]' $REPOSITORY_URI:$CODEBUILD_SOURCE_VERSION > imagedefinitions.json
+     - printf '[{"name":"laravel-docker-container","imageUri":"%s"}]' $REPOSITORY_URI:${CODEBUILD_WEBHOOK_TRIGGER#branch/} > imagedefinitions.json
 artifacts:
   files: imagedefinitions.json
