@@ -21,14 +21,14 @@ phases:
    - composer install
    - echo Building the Docker image...
    - docker build -t laravel-docker .
-   - docker tag laravel-docker:latest $REPOSITORY_URI:${CODEBUILD_WEBHOOK_TRIGGER#branch/}
+   - docker tag laravel-docker:latest $REPOSITORY_URI:latest
  post_build:
    commands:
      - echo Build completed on `date`
      - echo Pushing the Docker image...
      - docker image ls -a
-     - docker push $REPOSITORY_URI:${CODEBUILD_WEBHOOK_TRIGGER#branch/}
+     - docker push $REPOSITORY_URI:latest
      - echo Writing image definitions file...
-     - printf '[{"name":"laravel-docker-container","imageUri":"%s"}]' $REPOSITORY_URI:${CODEBUILD_WEBHOOK_TRIGGER#branch/} > imagedefinitions.json
+     - printf '[{"name":"laravel-docker-container","imageUri":"%s"}]' $REPOSITORY_URI:latest > imagedefinitions.json
 artifacts:
   files: imagedefinitions.json
